@@ -10,22 +10,38 @@ import BlogCreate from './components/BlogCreate';
 import Home from './components/Home';
 import Blogs from './components/Blogs';
 import Profile from './components/Profile';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
     <>
+    <AuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
           <Route index element={<Home/>} />
             <Route path="login" element={<Login />} />
             <Route path="signup" element={<Signup />} />
-            <Route path="blogcreate" element={<BlogCreate />} />
-            <Route path="blog" element={<Blogs />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="blogcreate" element={
+              <ProtectedRoute>
+              <BlogCreate />
+              </ProtectedRoute>} 
+              />
+            <Route path="blog" element={
+              <ProtectedRoute>
+              <Blogs />
+              </ProtectedRoute>
+              } />
+            <Route path="profile" element={
+              <ProtectedRoute>
+              <Profile />
+              </ProtectedRoute>
+              } />
           </Route>
         </Routes>
       </BrowserRouter>
+      </AuthProvider>
     </>
   );
 }

@@ -3,10 +3,13 @@ import '../App.css';
 import { IonIcon } from '@ionic/react';
 import '@ionic/react/css/core.css';
 import logoImg from '../assets/imgs/blog-web-transparent.png';
-import { NavLink } from 'react-router-dom'; 
+import { NavLink,useNavigate } from 'react-router-dom'; 
 import { menuOutline, closeOutline } from 'ionicons/icons';
+import { useAuthContext } from "../context/AuthContext";
 
 function NavBar() {
+    const navigate = useNavigate();
+    const { isLoggedIn, setIsLoggedIn, loginStatus, setLoginStatus } = useAuthContext();
     const [menuName, setMenuName] = useState('menu');
     const [navLinksClass, setNavLinksClass] = useState('top-[-100%]');
 
@@ -19,7 +22,14 @@ function NavBar() {
         setMenuName('menu');
         setNavLinksClass('top-[-100%]');
     }
-    
+
+    const handleLogout = () => {
+        sessionStorage.removeItem('accessToken');
+        setIsLoggedIn(false);
+        setLoginStatus('Login');
+        navigate('/login'); // Navigate to the login page
+    };
+
     return (
         <div className="bg-slate-900 text-gray-300">
             <nav className="flex justify-between items-center w-[92%] mx-auto h-16">
@@ -45,19 +55,13 @@ function NavBar() {
                     </ul>
                 </div>
                 <div className="flex items-center gap-6">
-                    <NavLink to="/login">
-                        <div className="h-12 w-32 flex justify-center items-center">
-                            <div className="relative inline-flex group">
-                                <div
-                                    className="absolute transition-all duration-1000 opacity-70 -inset-px bg-gradient-to-r from-[#44BCFF] via-[#FF44EC] to-[#FF675E] rounded-md blur-lg group-hover:opacity-100 group-hover:-inset-1 group-hover:duration-200 animate-tilt">
-                                </div>
-                                <NavLink to="/login" title="Sign In"
-                                    className={({ isActive }) => `relative inline-flex items-center justify-center px-4 py-1 text-lg font-bold text-white transition-all duration-200 bg-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 ${isActive ? 'active' : ''}`}
-                                    role="button">Sign In
-                                </NavLink>
-                            </div>
-                        </div>
-                    </NavLink>
+                    {isLoggedIn ? (
+                        <button onClick={handleLogout} className="bg-[#6693e2] text-white px-3 py-1 rounded-full hover:bg-[#7587a5]">{loginStatus}</button>
+                    ) : (
+                        <NavLink to="/login">
+                            <button className="bg-[#6693e2] text-white px-3 py-1 rounded-full hover:bg-[#7587a5]">{loginStatus}</button>
+                        </NavLink>
+                    )}
                     <IonIcon 
                         icon={menuName === 'menu' ? menuOutline : closeOutline} 
                         className="text-3xl cursor-pointer md:hidden" 
