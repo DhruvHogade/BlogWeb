@@ -1,10 +1,29 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
+class AccessibilityNeed(models.Model):
+    name = models.CharField(max_length=100)
+    value = models.CharField(max_length=50, unique=True)
+    
+    class Meta:
+        verbose_name = 'Accessibility Need'
+        verbose_name_plural = 'Accessibility Needs'
+
+    def __str__(self):
+        return self.name
+    
+    @classmethod
+    def get_default_needs(cls):
+        return [
+            {'value': 'deaf', 'name': 'Deaf or Hard of Hearing'},
+            {'value': 'speech', 'name': 'Speech Impairment'},
+            {'value': 'other', 'name': 'Other'}
+        ]
+
 class UserManager(BaseUserManager):
-    def create_user(self, email,name,tc, password=None,password2=None):
+    def create_user(self, email,tc, password=None):
         """
-        Creates and saves a User with the given email, name,
+        Creates and saves a User with the given email, 
         tc and password.
         """
         if not email:
@@ -12,7 +31,6 @@ class UserManager(BaseUserManager):
 
         user = self.model(
             email=self.normalize_email(email),
-            name=name,
             tc=tc,
         )
 
@@ -20,22 +38,19 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, name,tc, password=None):
+    def create_superuser(self, email, tc, password=None):
         """
-        Creates and saves a superuser with the given email, name,
+        Creates and saves a superuser with the given email,
         tc and password.
         """
         user = self.create_user(
             email,
             password=password,
-            name=name,
             tc=tc,
         )
         user.is_admin = True
         user.save(using=self._db)
         return user
-
-
 
 class User(AbstractBaseUser):
     email = models.EmailField(
@@ -43,7 +58,6 @@ class User(AbstractBaseUser):
         max_length=255,
         unique=True,
     )
-    name = models.CharField(max_length=200)
     tc = models.BooleanField()
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -51,10 +65,13 @@ class User(AbstractBaseUser):
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
+    has_accessibility_needs = models.BooleanField(default=False)
+    accessibility_needs = models.ManyToManyField(AccessibilityNeed, blank=True)
+
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name','tc']
+    REQUIRED_FIELDS = ['tc']
 
     def __str__(self):
         return self.email
@@ -74,4 +91,5 @@ class User(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+    
     

@@ -1,11 +1,12 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
-from account.serializers import UserRegistrationSerializer,UserLoginSerializer,UserProfileSerializer,UserChangePasswordSerializer,SendPasswordResetEmailSerializer,UserPasswordResetSerializer
+from rest_framework import generics,status
+from account.serializers import UserRegistrationSerializer,UserLoginSerializer,UserProfileSerializer,UserChangePasswordSerializer,SendPasswordResetEmailSerializer,UserPasswordResetSerializer,AccessibilityNeedSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
+from .models import AccessibilityNeed
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -25,6 +26,11 @@ class UserRegistrationView(APIView):
             return Response({'token':token,'msg':'Registration Success'},status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
+class AccessibilityNeedsView(generics.ListAPIView):
+    queryset = AccessibilityNeed.objects.all()
+    serializer_class = AccessibilityNeedSerializer
+    permission_classes = (AllowAny,)
+    
 class UserLoginView(APIView):
     
     def post(self, request,format=None):
@@ -37,7 +43,7 @@ class UserLoginView(APIView):
                 token=get_tokens_for_user(user)
                 return Response({'token':token,'msg':'Login Success'},status=status.HTTP_200_OK)
             else:
-                return Response({'errors':{'non_field_errors':['Email or Password is invalid']}},status=status.HTTP_404_NOT_FOUND)
+                return Response({'errors':{'non_field_errors':['Email or Password is invalid']}},status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
 class UserProfileView(APIView):
