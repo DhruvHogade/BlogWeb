@@ -1,22 +1,19 @@
 from rest_framework import serializers
-from account.models import User,AccessibilityNeed
+from account.models import User
 from django.utils.encoding import smart_str,force_bytes,DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.password_validation import validate_password 
 from account.utils import Util
 
-class AccessibilityNeedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AccessibilityNeed
-        fields = ['value', 'name']
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'password2', 'tc']
+        fields = ['email','name', 'password', 'password2', 'tc']
         extra_kwargs = {
             'password': {'write_only': True, 'min_length': 5},
         }
@@ -43,7 +40,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
-        fields=['id','email']
+        fields=['id','email','name']
 
 
 class UserChangePasswordSerializer(serializers.Serializer):

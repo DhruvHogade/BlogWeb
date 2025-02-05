@@ -1,12 +1,12 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics,status
-from account.serializers import UserRegistrationSerializer,UserLoginSerializer,UserProfileSerializer,UserChangePasswordSerializer,SendPasswordResetEmailSerializer,UserPasswordResetSerializer,AccessibilityNeedSerializer
+from account.serializers import UserRegistrationSerializer,UserLoginSerializer,UserProfileSerializer,UserChangePasswordSerializer,SendPasswordResetEmailSerializer,UserPasswordResetSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated,AllowAny
-from .models import AccessibilityNeed
+
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -26,10 +26,7 @@ class UserRegistrationView(APIView):
             return Response({'token':token,'msg':'Registration Success'},status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
-class AccessibilityNeedsView(generics.ListAPIView):
-    queryset = AccessibilityNeed.objects.all()
-    serializer_class = AccessibilityNeedSerializer
-    permission_classes = (AllowAny,)
+
     
 class UserLoginView(APIView):
     

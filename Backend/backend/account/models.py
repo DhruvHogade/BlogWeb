@@ -1,27 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
-class AccessibilityNeed(models.Model):
-    name = models.CharField(max_length=100)
-    value = models.CharField(max_length=50, unique=True)
-    
-    class Meta:
-        verbose_name = 'Accessibility Need'
-        verbose_name_plural = 'Accessibility Needs'
-
-    def __str__(self):
-        return self.name
-    
-    @classmethod
-    def get_default_needs(cls):
-        return [
-            {'value': 'deaf', 'name': 'Deaf or Hard of Hearing'},
-            {'value': 'speech', 'name': 'Speech Impairment'},
-            {'value': 'other', 'name': 'Other'}
-        ]
 
 class UserManager(BaseUserManager):
-    def create_user(self, email,tc, password=None):
+    def create_user(self, email,tc,name, password=None):
         """
         Creates and saves a User with the given email, 
         tc and password.
@@ -31,6 +13,7 @@ class UserManager(BaseUserManager):
 
         user = self.model(
             email=self.normalize_email(email),
+            name = name,
             tc=tc,
         )
 
@@ -38,13 +21,14 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, tc, password=None):
+    def create_superuser(self, email,name, tc, password=None):
         """
         Creates and saves a superuser with the given email,
         tc and password.
         """
         user = self.create_user(
             email,
+            name,
             password=password,
             tc=tc,
         )
@@ -58,15 +42,13 @@ class User(AbstractBaseUser):
         max_length=255,
         unique=True,
     )
+    name = models.CharField(max_length=255,null=True)  # Define the max_length for the CharField
     tc = models.BooleanField()
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_subscribed = models.BooleanField(default=False)
-    created_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField(auto_now=True)
-
-    has_accessibility_needs = models.BooleanField(default=False)
-    accessibility_needs = models.ManyToManyField(AccessibilityNeed, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserManager()
 
@@ -80,16 +62,11 @@ class User(AbstractBaseUser):
         "Does the user have a specific permission?"
         return self.is_admin or self.is_subscribed
 
-
     def has_module_perms(self, app_label):
         "Does the user have permissions to view the app `app_label`?"
-        # Simplest possible answer: Yes, always
         return True
 
     @property
     def is_staff(self):
         "Is the user a member of staff?"
-        # Simplest possible answer: All admins are staff
         return self.is_admin
-    
-    

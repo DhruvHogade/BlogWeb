@@ -16,8 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from rest_framework.routers import DefaultRouter
+from Profile.views import ProfileViewSet
+
+router = DefaultRouter()
+router.register(r'profile', ProfileViewSet)
+
 
 urlpatterns = [
     path('user/', include('account.urls')),
     path('blog/', include('blog.urls')),
+    path('', include(router.urls)),
 ]
+
+
+ 
