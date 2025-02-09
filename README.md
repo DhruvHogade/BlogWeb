@@ -1,20 +1,8 @@
 # BlogWeb
 
-# requirements:
-pip install django django-rest-framework
-pip install python-dotenv
-pip install django-cors-headers
-pip install djangorestframework-simplejwt
+# requirements: 
+pip install django django-rest-framework python-dotenv django-cors-headers djangorestframework-simplejwt psycopg2-binary
 python -m pip install Pillow
-pip install psycopg2-binary
 
 
-npm install react-icons --save
-
-npm i @iconicicons/react
-
-npm i react-router-dom
-
-npm install js-cookie
-
-npm install axios
+npm install react-icons @iconicicons/react react-router-dom js-cookie axios --save
